@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
 if (!MONGODB_URI) {
@@ -82,6 +82,11 @@ app.post('/api/habits/update', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Failed to update habit' });
     }
+});
+
+// Serve index.html for any other requests
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
