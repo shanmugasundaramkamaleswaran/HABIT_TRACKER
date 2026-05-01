@@ -12,13 +12,16 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
-if (!MONGODB_URI) {
-    console.error('ERROR: MONGODB_URI is not defined in environment variables!');
+if (MONGODB_URI) {
+    mongoose.connect(MONGODB_URI)
+        .then(() => {
+            console.log('Connected to MongoDB');
+            initDB().catch(err => console.error('Error seeding database:', err));
+        })
+        .catch(err => console.error('MongoDB connection error:', err));
+} else {
+    console.error('CRITICAL ERROR: MONGODB_URI is not defined in environment variables!');
 }
-
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
 
 // Habit Schema
 const habitSchema = new mongoose.Schema({
@@ -44,13 +47,16 @@ const seedHabits = [
 ];
 
 async function initDB() {
-    const count = await Habit.countDocuments();
-    if (count === 0) {
-        await Habit.insertMany(seedHabits);
-        console.log('Database seeded with initial habits');
+    try {
+        const count = await Habit.countDocuments();
+        if (count === 0) {
+            await Habit.insertMany(seedHabits);
+            console.log('Database seeded with initial habits');
+        }
+    } catch (err) {
+        console.error('Failed to initialize database:', err);
     }
 }
-initDB();
 
 // API Endpoints
 app.get('/health', (req, res) => res.send('System Active'));
@@ -89,8 +95,10 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
 
 module.exports = app;
