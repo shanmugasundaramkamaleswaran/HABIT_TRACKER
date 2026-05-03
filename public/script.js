@@ -24,7 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) return JSON.parse(stored);
         } catch (e) {}
-        return { habits: JSON.parse(JSON.stringify(DEFAULT_HABITS)), days: DAYS };
+        return { 
+            habits: JSON.parse(JSON.stringify(DEFAULT_HABITS)), 
+            days: DAYS,
+            notes: "" 
+        };
     }
 
     // Save to localStorage
@@ -106,6 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = loadData();
         renderTracker(data);
         renderAnalysis(data);
+        
+        // Sync notes box
+        const notesBox = document.getElementById('notes-box');
+        if (notesBox) {
+            notesBox.value = data.notes || "";
+        }
     }
 
     // Toggle habit status — pure localStorage, no server needed
@@ -115,6 +125,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (habit) {
             habit.history[dayIndex] = !habit.history[dayIndex];
             saveData(data);
+            render();
+        }
+    };
+
+    // Save notes to localStorage
+    window.saveNotes = () => {
+        const notesBox = document.getElementById('notes-box');
+        const data = loadData();
+        data.notes = notesBox.value;
+        saveData(data);
+    };
+
+    // Reset all data
+    window.resetAll = () => {
+        if (confirm("Are you sure you want to clear all progress and notes? This action cannot be undone.")) {
+            localStorage.removeItem(STORAGE_KEY);
             render();
         }
     };

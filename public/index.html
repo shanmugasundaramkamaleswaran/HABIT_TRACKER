@@ -13,6 +13,7 @@
         <header>
             <h1>Habit Tracker Pro</h1>
             <p>Unlock your potential through consistent daily action. Track, analyze, and conquer.</p>
+            <button id="reset-btn" class="reset-btn" onclick="resetAll()">Reset Progress</button>
         </header>
         
         <main id="tracker-container">
@@ -22,6 +23,11 @@
         <section class="analysis-section" id="analysis-container">
             <!-- Charts will be injected here -->
              <div class="loading">Calculating performance...</div>
+        </section>
+
+        <section class="notes-section">
+            <h2>Strategic Reflections</h2>
+            <textarea id="notes-box" placeholder="Write your daily notes, insights, or strategies here..." oninput="saveNotes()"></textarea>
         </section>
 
         <footer>
